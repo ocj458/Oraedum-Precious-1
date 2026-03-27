@@ -1,0 +1,503 @@
+<!DOCTYPE html> 
+<html>
+<head>
+  <title>Warehouse System</title>
+  <style>
+    /* GLOBAL STYLES */
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f1f5f9;
+    }
+
+    /* LOGIN PAGE */
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+      background: none; /* remove gradient */
+    }
+
+  /* BACKGROUND IMAGE WITH BLUR */
+.center::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('login-bg.jpg'); /* put image in public folder */
+  background-size: 100%; /* zoom out slightly */
+  background-position: center;
+  filter: blur(1px) brightness(0.8); /* reduced blur */
+  z-index: -1;
+}
+
+    .card {
+      background: white;
+      padding: 35px;
+      border-radius: 14px;
+      width: 340px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card img {
+  width: 105px; /* was 70px, now 1.5x larger */
+  margin-bottom: 10px;
+}
+
+    .card h2 {
+      margin: 10px 0 5px;
+      font-weight: bold;
+      color: #1e293b;
+    }
+
+    .card p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5f5;
+      outline: none;
+      transition: 0.3s;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 5px rgba(37,99,235,0.3);
+    }
+
+    button {
+      margin-top: 18px;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      background: #2563eb;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #1e40af;
+      transform: scale(1.03);
+    }
+
+    /* PASSWORD INPUT WITH EYE */
+    .pwd-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .pwd-wrapper input {
+      width: 100%;
+      padding-right: 40px;
+    }
+
+    .pwd-wrapper svg {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      fill: #64748b; /* ash color */
+      width: 20px;
+      height: 20px;
+    }
+
+    /* DASHBOARD SIDEBAR */
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      background: #0f172a;
+      color: white;
+      position: fixed;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      padding: 15px;
+      border-bottom: 1px solid #334155;
+      font-size: 18px;
+    }
+
+    .sidebar img {
+      display: none;
+    }
+
+    .sidebar p {
+      padding: 15px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .sidebar p:hover {
+      background: #1e293b;
+    }
+
+    .main {
+      margin-left: 220px;
+      padding: 20px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .dashboard-header img {
+      width: 140px;
+      height: auto;
+    }
+
+    .dashboard-header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+      color: #1e293b;
+      text-align: center;
+    }
+
+    .dashboard-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #475569;
+      text-align: center;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card-small {
+      flex: 1;
+      background: #2563eb;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      min-width: 150px;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .qty-number {
+      font-weight: bold;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .action-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty-btn {
+      width: 30px;
+      height: 30px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .delete-btn {
+      background: #ef4444;
+      padding: 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      width: 25%;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="center">
+  <div class="card">
+    <img src="logo.png" alt="Logo">
+    <h2>Company Warehouse</h2>
+    <p>Inventory Management System</p>
+
+    <input id="username" placeholder="Username">
+    <div class="pwd-wrapper">
+      <input id="password" type="password" placeholder="Password">
+      <svg id="togglePwd" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 5c-7 0-12 7-12 7s5 7 12 7 12-7 12-7-5-7-12-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      </svg>
+    </div>
+
+    <button onclick="login()">Login</button>
+    <p id="msg" style="color:red;"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+
+  <div class="sidebar">
+    <h2>Dashboard</h2>
+    <p onclick="show('dashboard')">Overview</p>
+    <p onclick="show('inventory')">Inventory</p>
+    <p onclick="show('add')">Add Item</p>
+    <p onclick="show('users')">Users</p>
+    <p onclick="logout()" style="color:red;">Logout</p>
+  </div>
+
+  <div class="main">
+    <div class="dashboard-header">
+      <img src="logo.png" alt="Logo">
+      <div>
+        <h1>FLUIDEN-PENTRA ENGINEERING LIMITED</h1>
+        <h3>WAREHOUSE INVENTORY</h3>
+      </div>
+    </div>
+
+    <div id="dashboard" class="box">
+      <div class="cards">
+        <div class="card-small">
+          <h3>Total Items</h3>
+          <h1 id="total">0</h1>
+        </div>
+      </div>
+    </div>
+
+    <div id="inventory" class="box" style="display:none;">
+      <h2>Inventory</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="table"></tbody>
+      </table>
+    </div>
+
+    <div id="add" class="box" style="display:none;">
+      <h2>Add Item</h2>
+      <input id="name" placeholder="Item Name">
+      <input id="qty" type="number" placeholder="Quantity">
+      <button onclick="addItem()">Add Item</button>
+    </div>
+
+    <div id="users" class="box" style="display:none;">
+      <h2>Manage Users</h2>
+      <input id="newUser" placeholder="Username">
+      <input id="newPass" placeholder="Password">
+      <button onclick="createUser()">Create User</button>
+      <h3>All Users</h3>
+      <ul id="userList"></ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BASE = "http://localhost:3000";
+
+/* LOGIN */
+function login() {
+  fetch(BASE + "/login", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      username: document.getElementById("username").value,
+      password: document.getElementById("password").value
+    })
+  })
+  .then(async res => {
+    const data = await res.json().catch(() => null);
+    if(res.ok && data && data.status === "success"){
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      loadItems();
+      loadUsers();
+    } else {
+      document.getElementById("msg").innerText = "Invalid login details";
+    }
+  })
+  .catch(() => {
+    document.getElementById("msg").innerText = "Server error";
+  });
+}
+
+/* PASSWORD TOGGLE */
+document.getElementById("togglePwd").addEventListener("click", () => {
+  const pwd = document.getElementById("password");
+  pwd.type = pwd.type === "password" ? "text" : "password";
+});
+
+/* ADD ITEM */
+function addItem(){
+  fetch(BASE + "/add-item",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      name:document.getElementById("name").value,
+      qty:document.getElementById("qty").value
+    })
+  }).then(()=>{
+    document.getElementById("name").value = "";
+    document.getElementById("qty").value = "";
+    loadItems();
+  });
+}
+
+/* LOAD ITEMS */
+function loadItems(){
+  fetch(BASE + "/items")
+  .then(res=>res.json())
+  .then(data=>{
+    let table=document.getElementById("table");
+    table.innerHTML="";
+    data.forEach(item=>{
+      table.innerHTML+=`
+        <tr>
+          <td>${item.name}</td>
+          <td><span class="qty-number" id="qty-${item._id}">${item.qty}</span></td>
+          <td>
+            <div class="action-container">
+              <button class="qty-btn" onclick="updateQty('${item._id}', 1)">+</button>
+              <button class="qty-btn" onclick="updateQty('${item._id}', -1)">-</button>
+              <button class="delete-btn" onclick="deleteItem('${item._id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+    document.getElementById("total").innerText=data.length;
+  });
+}
+
+/* UPDATE QUANTITY INLINE */
+function updateQty(id, change){
+  const qtySpan = document.getElementById(`qty-${id}`);
+  let current = parseInt(qtySpan.innerText);
+  let newQty = current + change;
+  if(newQty < 0) newQty = 0;
+  qtySpan.innerText = newQty;
+
+  fetch(BASE + "/update-item", {
+    method: "PATCH",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ id, change })
+  }).catch(() => {
+    qtySpan.innerText = current;
+    alert("Failed to update quantity on server");
+  });
+}
+
+/* DELETE ITEM */
+function deleteItem(id){
+  fetch(BASE + "/delete-item/" + id,{method:"DELETE"})
+  .then(()=>loadItems());
+}
+
+/* USERS */
+function createUser(){
+  fetch(BASE + "/create-user",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      username:document.getElementById("newUser").value,
+      password:document.getElementById("newPass").value
+    })
+  }).then(()=>{
+    document.getElementById("newUser").value = "";
+    document.getElementById("newPass").value = "";
+    loadUsers();
+  });
+}
+
+function loadUsers(){
+  fetch(BASE + "/users")
+  .then(res=>res.json())
+  .then(data=>{
+    let list=document.getElementById("userList");
+    list.innerHTML="";
+    data.forEach(user=>{
+      list.innerHTML+=`
+        <li>
+          ${user.username}
+          <button onclick="deleteUser('${user._id}')">Remove</button>
+        </li>
+      `;
+    });
+  });
+}
+
+function deleteUser(id){
+  fetch(BASE + "/delete-user/" + id,{method:"DELETE"})
+  .then(()=>loadUsers());
+}
+
+/* NAVIGATION */
+function show(id){
+  ["dashboard","inventory","add","users"].forEach(x=>{
+    document.getElementById(x).style.display="none";
+  });
+  document.getElementById(id).style.display="block";
+}
+
+/* LOGOUT */
+function logout(){
+  document.getElementById("app").style.display="none";
+  document.getElementById("loginPage").style.display="flex";
+}
+</script>
+</body>
+</html>
